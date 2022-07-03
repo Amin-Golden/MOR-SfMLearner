@@ -53,6 +53,7 @@ parser.add_argument('--iou-thres', type=float, default=0.45, help='NMS IoU thres
 parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
 parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
 parser.add_argument('--update', action='store_true', help='update all models')
+    parser.add_argument('--view-img', action='store_true', default=False, help='show results')
 
 parser.add_argument("--sequence", default='09', type=str, help="sequence to test")
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
