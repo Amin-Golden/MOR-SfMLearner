@@ -8,5 +8,6 @@ python train.py $TRAIN_SET \
 --with-mask 0 \
 --with-auto-mask 1 \
 --with-pretrain 1 \
+--pretrained-pose /models/exp_pose_model_MorVo.pth.tar \
 --log-output \
 --name resnet50_pose_256
