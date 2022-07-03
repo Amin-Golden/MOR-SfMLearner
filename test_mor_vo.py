@@ -15,8 +15,6 @@ from scipy.ndimage.interpolation import zoom
 from inverse_warp import *
 
 import models
-from utils import tensor2array
-
 import cv2
 import os
 import sys
