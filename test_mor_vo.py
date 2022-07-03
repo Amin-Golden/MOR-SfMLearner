@@ -125,7 +125,7 @@ def main():
    
     global_pose = np.eye(4)
     poses = [global_pose[0:3, :].reshape(1, 12)]
-
+    k=0
     for path, im, im0s, vid_cap, s in dataset:
         t1 = time_sync()
         im = torch.from_numpy(im).to(device)
@@ -187,21 +187,22 @@ def main():
                 cv2.imshow(str(p), im0)
                 cv2.waitKey(1)  # 1 millisecond
 
-            if i==0:
-                tensor_img1,img = load_tensor_image(im0, args)
-            else:
-                tensor_img2,img = load_tensor_image(im0, args)
-                
-                pose = pose_net(tensor_img1, tensor_img2)
+        if k==0:
+            tensor_img1,img = load_tensor_image(im0, args)
+            k=k+1
+        else:
+            tensor_img2,img = load_tensor_image(im0, args)
+            
+            pose = pose_net(tensor_img1, tensor_img2)
 
-                pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
-                pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
-                global_pose = global_pose @  np.linalg.inv(pose_mat)
+            pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
+            pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
+            global_pose = global_pose @  np.linalg.inv(pose_mat)
 
-                poses.append(global_pose[0:3, :].reshape(1, 12))
+            poses.append(global_pose[0:3, :].reshape(1, 12))
 
-                # update
-                tensor_img1 = tensor_img2
+            # update
+            tensor_img1 = tensor_img2
                 
         # Print time (inference-only)
         LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
