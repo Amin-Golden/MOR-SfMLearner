@@ -190,6 +190,7 @@ def main():
         if k==0:
             tensor_img1,img = load_tensor_image(im0, args)
             k=k+1
+            cv2.imwrite("test.jpg", im0)
             print("first image")
         else:
             tensor_img2,img = load_tensor_image(im0, args)
