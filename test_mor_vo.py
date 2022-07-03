@@ -79,7 +79,7 @@ def main():
 
 
     # Load object detection model 
-    model_obj = DetectMultiBackend(args.weights_obj, device=device, dnn=False, data='data/Argovere.yaml', fp16=False)
+    model_obj = DetectMultiBackend(args.weights_obj, device=device, dnn=False, data='data/Argoverse.yaml', fp16=False)
     stride, names, pt = model_obj.stride, model_obj.names, model_obj.pt
     imgsz=(args.img_height, args.img_width)
     imgsz = check_img_size(imgsz, s=stride)  # check image size
