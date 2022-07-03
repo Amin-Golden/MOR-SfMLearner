@@ -1,5 +1,5 @@
 DATA_ROOT=/media/bjw/Disk
-TRAIN_SET=../Dataset/kitti_vo_256/
+TRAIN_SET=Dataset/kitti_vo_256/
 python train.py $TRAIN_SET \
 --resnet-layers 50 \
 --num-scales 1 \
