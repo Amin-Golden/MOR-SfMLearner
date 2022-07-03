@@ -70,7 +70,7 @@ def load_tensor_image(img_r, args):
     
 
     tensor_img = ((torch.from_numpy(img).unsqueeze(0)/255-0.45)/0.225).to(device)
-    return tensor_img,img_r
+    return tensor_img,img
 
 
 @torch.no_grad()
@@ -190,6 +190,7 @@ def main():
         if k==0:
             tensor_img1,img = load_tensor_image(im0, args)
             k=k+1
+            print("first image")
         else:
             tensor_img2,img = load_tensor_image(im0, args)
             
@@ -203,6 +204,8 @@ def main():
 
             # update
             tensor_img1 = tensor_img2
+            print("image k:", k)
+            k=k+1
                 
         # Print time (inference-only)
         LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
