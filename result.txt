@@ -1,0 +1,20 @@
+object removed dataset: 
+
+getting test metadata for theses sequences : {Path('../yolov5/kitti-odometry-woo/sequences/09')}
+100%|█████████████████████████████████████████████| 1/1 [00:00<00:00, 17.42it/s]
+1591 snippets to test
+100%|██████████████████████████████████████▉| 1587/1591 [15:38<00:02,  1.69it/s]
+
+Results
+	        ATE,         RE
+mean 	     0.0355,     0.0127
+std 	     0.0449,     0.0071
+getting test metadata for theses sequences : {Path('../yolov5/kitti-odometry-woo/sequences/10')}
+100%|█████████████████████████████████████████████| 1/1 [00:00<00:00, 13.76it/s]
+1201 snippets to test
+100%|██████████████████████████████████████▊| 1197/1201 [07:11<00:01,  2.77it/s]
+
+Results
+	        ATE,         RE
+mean 	     0.0312,     0.0114
+std 	     0.0440,     0.0093
