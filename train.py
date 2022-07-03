@@ -13,7 +13,7 @@ import torch.utils.data
 import models
 
 import custom_transforms
-from utils import tensor2array, save_checkpoint
+from util import tensor2array, save_checkpoint
 from datasets.sequence_folders import SequenceFolder
 from datasets.pair_folders import PairFolder
 from loss_functions import compute_smooth_loss, compute_photo_and_geometry_loss, compute_errors
