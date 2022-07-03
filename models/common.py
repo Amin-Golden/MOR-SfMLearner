@@ -322,9 +322,9 @@ class DetectMultiBackend(nn.Module):
 
         super().__init__()
         w = str(weights[0] if isinstance(weights, list) else weights)
-        pt=True#, jit, onnx, xml, engine, coreml, saved_model, pb, tflite, edgetpu, tfjs = self.model_type(w)  # get backend
+        pt, jit, onnx, xml, engine, coreml, saved_model, pb, tflite, edgetpu, tfjs = self.model_type(w)  # get backend
         w = attempt_download(w)  # download if not local
-        fp16 &= (pt ) and device.type != 'cpu'  # FP16  or jit or onnx or engine
+        fp16 &= (pt or FP16  or jit or onnx or engine) and device.type != 'cpu'  # FP16  or jit or onnx or engine
         stride, names = 32, [f'class{i}' for i in range(1000)]  # assign defaults
         if data:  # assign class names (optional)
             with open(data, errors='ignore') as f:
