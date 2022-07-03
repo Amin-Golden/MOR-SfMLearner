@@ -179,7 +179,7 @@ def main():
 
             # Stream results
             im0 = annotator.result()
-            if view_img:
+            if args.view_img:
                 if p not in windows:
                     windows.append(p)
                     cv2.namedWindow(str(p), cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)  # allow window resize (Linux)
