@@ -190,7 +190,7 @@ def main():
 
     for epoch in range(args.epochs):
         logger.epoch_bar.update(epoch)
-
+        print("*** epoch num: ",epoch)
         # train for one epoch
         logger.reset_train_bar()
         train_loss = train(args, train_loader, disp_net, pose_net, optimizer, args.epoch_size, logger, training_writer)
