@@ -40,7 +40,7 @@ parser.add_argument('--seed', default=0, type=int, help='seed for random functio
 parser.add_argument('--log-summary', default='progress_log_summary.csv', metavar='PATH', help='csv where to save per-epoch train and valid stats')
 parser.add_argument('--log-full', default='progress_log_full.csv', metavar='PATH', help='csv where to save per-gradient descent train stats')
 parser.add_argument('--log-output', action='store_true', help='will log dispnet outputs at validation step')
-parser.add_argument('--resnet-layers',  type=int, default=18, choices=[18, 50], help='number of ResNet layers for depth estimation.')
+parser.add_argument('--resnet-layers',  type=int, default=50, choices=[18, 50], help='number of ResNet layers for depth estimation.')
 parser.add_argument('--num-scales', '--number-of-scales', type=int, help='the number of scales', metavar='W', default=1)
 parser.add_argument('-p', '--photo-loss-weight', type=float, help='weight for photometric loss', metavar='W', default=1)
 parser.add_argument('-s', '--smooth-loss-weight', type=float, help='weight for disparity smoothness loss', metavar='W', default=0.1)
