@@ -56,8 +56,8 @@ parser.add_argument('--update', action='store_true', help='update all models')
 parser.add_argument('--view-img', action='store_true', default=False, help='show results')
 
 parser.add_argument("--sequence", default='09', type=str, help="sequence to test")
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
+device =  torch.device("cpu")
+#torch.device("cuda") if torch.cuda.is_available() else
 # vid = cv2.VideoCapture(2)
 
 def load_tensor_image(img_r, args):
