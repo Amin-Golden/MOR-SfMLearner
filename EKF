@@ -1,0 +1,95 @@
+# Covariance errors of the Acceleronmeter, Gyroscome and Camera
+var_imu_f = 0.1
+var_imu_w = 1.0
+var_cam = 1.0
+
+# Jacobian matrices
+g = np.array([0, 0, -9.81])  # gravity
+l_jac = np.zeros([9, 6])
+l_jac[3:, :] = np.eye(6)  # motion model noise jacobian
+h_jac = np.zeros([3, 9])
+h_jac[:, :3] = np.eye(3)  # measurement model jacobian
+
+#### 3. Initial Values #########################################################################
+
+################################################################################################
+# Let's set up some initial values for our ES-EKF solver.
+################################################################################################
+p_est = np.zeros([imu[0,:].shape[0], 3])  # position estimates
+v_est = np.zeros([imu[0,:].shape[0], 3])  # velocity estimates
+q_est = np.zeros([imu[0,:].shape[0], 4])  # orientation estimates as quaternions
+p_cov = np.zeros([imu[0,:].shape[0], 9, 9])  # covariance matrices at each timestep
+ 
+# Set initial values
+p_est[0] = list_of_pos[:,0] # Start the position at the first known orientation provided by the ground truth
+v_est[0] = np.zeros(3) # Start velocity stimes at cero
+q_est[0] = Quaternion(w=list_of_q[:,0][3], x=list_of_q[:,0][0], y=list_of_q[:,0][1], z=list_of_q[:,0][2]).to_numpy()
+p_cov[0] = np.eye(9)  # covariance of estimate
+cam_i = 1 # Count camera updates
+
+#### 4. Measurement Update #####################################################################
+
+def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check):
+    # Compute Kalman Gain
+    R = np.diag([sensor_var, sensor_var, sensor_var]) # Measurement covariance matrix calculation
+
+    K = p_cov_check.dot(h_jac.T).dot(inv(h_jac.dot(p_cov_check).dot(h_jac.T) + R)) #Kalman gain calculation
+
+    # Compute error state
+    error_x = K.dot(y_k - p_check) # Error state computation
+
+    # Correct predicted state
+    p_check = p_check + error_x[0:3] 
+    v_check = v_check + error_x[3:6]
+    q_check = Quaternion(axis_angle = error_x[6:9]).quat_mult(q_check)
+
+    # Compute corrected covariance
+    p_cov_check = (np.eye(9) - K.dot(h_jac)).dot(p_cov_check)
+
+    return p_check, v_check, q_check, p_cov_check
+
+
+#### 5. Main Filter Loop #######################################################################
+
+p_check = p_est[0] # Position check
+v_check = v_est[0] # Velocity check
+q_check = q_est[0] # Orientation check
+p_cov_check = p_cov[0]
+
+f_jac = np.eye(9) # Jacobian matrix initialization
+Q_imu = np.diag([var_imu_f, var_imu_f, var_imu_f, var_imu_w, var_imu_w, var_imu_w]) # Q variance matrix
+
+for k in range(1, imu[0,:].shape[0]):  # start at 1 b/c we have initial prediction from gt
+    delta_t = imu[0, k] - imu[0, k - 1]
+
+    # Update state with IMU inputs
+
+    C_ni = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
+
+    p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu[1:4, k - 1]) + g)) # Position calculation
+    v_check = v_check + (delta_t * (C_ni.dot(imu[1:4, k - 1]) + g)) #velocity calculation
+    q_check = Quaternion(axis_angle = imu[4:7, k - 1] * delta_t).quat_mult(q_check) #Quaternion calculation (Current orientation)
+
+    # Linearize Motion Model
+    F = f_jac # F matrix value assignation
+    F[0:3,3:6] = np.eye(3) * delta_t 
+    #F[3:6,6:9] = -1 * skew_symmetric(C_ni.dot(imu[1:4, k - 1])) * delta_t 
+    F[3:6,6:9] = -1 * C_ni.dot(skew_symmetric(imu[1:4, k - 1])) * delta_t # This line is the forum suggestion and works much better
+    F[6:9,6:9] = Quaternion(axis_angle = imu[4:7, k - 1] * delta_t).to_mat().T # This line is the forum suggestion and works much better
+
+    Q = Q_imu * (delta_t**2) # Variance calculation in discrete time
+
+    # Propagate uncertainty
+    p_cov_check = F.dot(p_cov_check).dot(F.T) + l_jac.dot(Q).dot(l_jac.T) #Variance calculation
+
+    # Check availability of Cam measurements
+    if cam_i < len(timestamp):
+        if imu[0, k] == timestamp[cam_i]: # Measurement por GNSS
+            p_check, v_check, q_check, p_cov_check = measurement_update(var_cam, p_cov_check, trajectory[:,cam_i], p_check, v_check, q_check)
+            cam_i = cam_i + 1
+            
+    # Save current states
+    p_est[k] = p_check
+    v_est[k] = v_check
+    q_est[k] = q_check
+    p_cov[k] = p_cov_check
