@@ -119,7 +119,7 @@ def main():
     
     imu_dir="datasets/oxts" + args.sequence +".txt"
     imu=pd.read_csv(imu_dir, sep=" ", header=None, names=["lat", "lon","alt","roll","pitch","yaw","vn","ve","vf","vl","vu","ax","ay","az","af","al","au","wx","wy","wz","wf","wl","wu","pos_accuracy","vel_accuracy","navstat","numsats","posmode","velmode","orimode"])
-    feature=["vf","ay","ax","az","wy","wx","wz","roll","pitch","yaw"]
+    feature=["vf","ay","az","ax","wy","wz","wx","roll","pitch","yaw"]
     imu_f=imu[feature]
     imu_f = imu_f.values.tolist()
     imu_f = np.array(imu_f).T
@@ -353,7 +353,7 @@ def main():
 
             Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
 
-            pose_mat[0:3,0:3]=Rot
+            # pose_mat[0:3,0:3]=Rot
             pose_mat[0:3,3]=p_check.T
             
             print("pose_mat",pose_mat)
