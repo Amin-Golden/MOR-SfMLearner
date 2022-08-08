@@ -316,7 +316,7 @@ def main():
             trajectory = [np.array([0, 0, 0])]
             trajectory = pose_mat[3,0:3].T
             delta_t = 0.1
-            print("trajectory",trajectory)
+            print("pose_mat first",pose_mat)
 
             # Update state with IMU inputs
 
