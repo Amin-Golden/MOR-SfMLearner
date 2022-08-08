@@ -314,9 +314,9 @@ def main():
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
            
             trajectory = [np.array([0, 0, 0])]
-            trajectory = pose_mat[3,0:3].T
+            trajectory =pose_mat[0:3,3].T
             delta_t = 0.1
-            print("pose_mat first",pose_mat[0:3,3])
+            print("trajectory first",trajectory)
 
             # Update state with IMU inputs
 
