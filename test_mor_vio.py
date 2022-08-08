@@ -117,7 +117,7 @@ def main():
     ############################################################################################################
     ################# EKF init #################################################################################
     
-    imu_dir="/datasets/oxts" + args.sequence +".txt"
+    imu_dir="datasets/oxts" + args.sequence +".txt"
     imu=pd.read_csv(imu_dir, sep=" ", header=None, names=["lat", "lon","alt","roll","pitch","yaw","vn","ve","vf","vl","vu","ax","ay","az","af","al","au","wx","wy","wz","wf","wl","wu","pos_accuracy","vel_accuracy","navstat","numsats","posmode","velmode","orimode"])
     feature=["vf","ay","ax","az","wy","wx","wz","roll","pitch","yaw"]
     imu_f=imu[feature]
