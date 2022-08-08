@@ -137,7 +137,7 @@ def main():
     var_cam = 1.0
 
     # Jacobian matrices
-    g = np.array([0, -9.81,0 ])  # gravity
+    g = np.array([0, 9.81,0 ])  # gravity
     l_jac = np.zeros([9, 6])
     l_jac[3:, :] = np.eye(6)  # motion model noise jacobian
     h_jac = np.zeros([3, 9])
