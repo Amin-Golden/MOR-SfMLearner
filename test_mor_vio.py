@@ -316,6 +316,7 @@ def main():
             trajectory = [np.array([0, 0, 0])]
             trajectory = pose_mat[3,0:3].T
             delta_t = 0.1
+            print("trajectory",trajectory)
 
             # Update state with IMU inputs
 
@@ -355,6 +356,7 @@ def main():
             pose_mat[0:3,0:3]=Rot
             pose_mat[3,0:3]=p_check.T
             
+            print("pose_mat",pose_mat)
             global_pose = global_pose @  np.linalg.inv(pose_mat)
 
             poses.append(global_pose[0:3, :].reshape(1, 12))
