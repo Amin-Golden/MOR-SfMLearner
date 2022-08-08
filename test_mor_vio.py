@@ -341,7 +341,7 @@ def main():
 
             
                 
-            p_check, v_check, q_check, p_cov_check = measurement_update(var_cam, p_cov_check, trajectory[:,k-1]*scale, p_check, v_check, q_check)
+            p_check, v_check, q_check, p_cov_check = measurement_update(var_cam, p_cov_check, trajectory, p_check, v_check, q_check)
                     
             # Save current states
             p_imu_est[k] = p_imu
