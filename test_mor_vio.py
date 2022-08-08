@@ -317,7 +317,7 @@ def main():
             trajectory =pose_mat[0:3,3].T
             delta_t = 0.1
             print("trajectory first",trajectory)
-
+            print("pose_mat",pose_mat)
             # Update state with IMU inputs
 
             C_ni = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
@@ -356,7 +356,7 @@ def main():
             # pose_mat[0:3,0:3]=Rot
             pose_mat[0:3,3]=p_check.T
             
-            print("pose_mat",pose_mat)
+            
             global_pose = global_pose @  np.linalg.inv(pose_mat)
             print("global_pose",global_pose[0:3, :])
             poses.append(global_pose[0:3, :].reshape(1, 12))
