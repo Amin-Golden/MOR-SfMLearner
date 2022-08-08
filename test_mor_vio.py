@@ -354,16 +354,16 @@ def main():
             Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
 
             pose_mat[0:3,0:3]=Rot
-            pose_mat[3,0:3]=p_check.T
+            pose_mat[0:3,3]=p_check.T
             
             print("pose_mat",pose_mat)
             global_pose = global_pose @  np.linalg.inv(pose_mat)
-
+            print("global_pose",global_pose[0:3, :])
             poses.append(global_pose[0:3, :].reshape(1, 12))
 
             # update
             tensor_img1 = tensor_img2
-            print("image k:", k)
+            # print("image k:", k)
             k=k+1
                 
         # Print time (inference-only)
