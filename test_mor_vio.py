@@ -37,6 +37,7 @@ import random
 
 from rotations import Quaternion, skew_symmetric
 from vis_tools import *
+from fusion import Fusion
 
 FILE = Path1(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -116,7 +117,9 @@ def main():
 
     ############################################################################################################
     ################# EKF init #################################################################################
-    
+    fuse = Fusion()
+
+
     imu_dir="datasets/oxts" + args.sequence +".txt"
     imu=pd.read_csv(imu_dir, sep=" ", header=None, names=["lat", "lon","alt","roll","pitch","yaw","vn","ve","vf","vl","vu","ax","ay","az","af","al","au","wx","wy","wz","wf","wl","wu","pos_accuracy","vel_accuracy","navstat","numsats","posmode","velmode","orimode"])
     feature=["vf","ay","az","ax","wy","wz","wx","roll","pitch","yaw"]
@@ -305,6 +308,7 @@ def main():
             k=k+1
             cv2.imwrite("test.jpg", im0)
             print("first image")
+            
         else:
             tensor_img2,img = load_tensor_image(im0, args)
             
@@ -319,6 +323,7 @@ def main():
             print("trajectory first",trajectory)
             print("pose_mat",pose_mat)
             # Update state with IMU inputs
+            fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]))
 
             C_ni = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
             p_imu = p_imu + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k ]) + g))
