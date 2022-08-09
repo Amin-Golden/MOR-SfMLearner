@@ -32,7 +32,7 @@ class Fusion(object):
     declination = 0                         # Optional offset for true north. A +ve value adds to heading
     def __init__(self, timediff=None):
         self.magbias = (0, 0, 0)            # local magnetic bias factors: set from calibration
-        self.deltat = DeltaT(timediff)      # Time between updates
+        self.deltat = timediff     # Time between updates
         self.q = [1.0, 0.0, 0.0, 0.0]       # vector to hold quaternion
         GyroMeasError = radians(40)         # Original code indicates this leads to a 2 sec response time
         self.beta = sqrt(3.0 / 4.0) * GyroMeasError  # compute beta (see README)
@@ -101,7 +101,7 @@ class Fusion(object):
         qDot4 = 0.5 * (q1 * gz + q2 * gy - q3 * gx) - self.beta * s4
 
         # Integrate to yield quaternion
-        deltat = self.deltat(ts)
+        deltat = ts
         q1 += qDot1 * deltat
         q2 += qDot2 * deltat
         q3 += qDot3 * deltat
@@ -197,7 +197,7 @@ class Fusion(object):
         qDot4 = 0.5 * (q1 * gz + q2 * gy - q3 * gx) - self.beta * s4
 
         # Integrate to yield quaternion
-        deltat = self.deltat(ts)
+        deltat = ts
         q1 += qDot1 * deltat
         q2 += qDot2 * deltat
         q3 += qDot3 * deltat
