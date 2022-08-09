@@ -107,7 +107,7 @@ class Fusion(object):
         q4 += qDot4 * deltat
         norm = 1 / sqrt(q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4)    # normalise quaternion
         self.q = q1 * norm, q2 * norm, q3 * norm, q4 * norm
-        self.heading = degrees(atan2(self.q[1]*qself.q[2] + self.q[0]*self.q[3], 0.5 - self.q[2]*self.q[2] - self.q[3]*self.q[3]);
+        self.heading = degrees(atan2(self.q[1]*self.q[2] + self.q[0]*self.q[3], 0.5 - self.q[2]*self.q[2] - self.q[3]*self.q[3]));
         self.pitch = degrees(-asin(2.0 * (self.q[1] * self.q[3] - self.q[0] * self.q[2])))
         self.roll = degrees(atan2(2.0 * (self.q[0] * self.q[1] + self.q[2] * self.q[3]),
             self.q[0] * self.q[0] - self.q[1] * self.q[1] - self.q[2] * self.q[2] + self.q[3] * self.q[3]))
