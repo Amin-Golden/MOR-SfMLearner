@@ -135,7 +135,7 @@ def main():
     
 
     # Covariance errors of the Acceleronmeter, Gyroscome and Camera
-    var_imu_f = 0.1
+    var_imu_f = 1.0
     var_imu_w = 1.0
     var_cam = 1.0
 
