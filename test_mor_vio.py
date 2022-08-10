@@ -120,6 +120,10 @@ def main():
     ################# EKF init #################################################################################
     fuse = Fusion(0.1)
 
+    times_dir = Path(args.dataset_dir + args.sequence + "times.txt")
+    time_s=pd.read_csv(times_dir)
+    time_s = time_s.values.tolist()
+    time_s = np.array(time_s) 
 
     imu_dir="datasets/oxts" + args.sequence +".txt"
     imu=pd.read_csv(imu_dir, sep=" ", header=None, names=["lat", "lon","alt","roll","pitch","yaw","vn","ve","vf","vl","vu","ax","ay","az","af","al","au","wx","wy","wz","wf","wl","wu","pos_accuracy","vel_accuracy","navstat","numsats","posmode","velmode","orimode"])
@@ -135,9 +139,9 @@ def main():
     
 
     # Covariance errors of the Acceleronmeter, Gyroscome and Camera
-    var_imu_f = 1.0
+    var_imu_f = 0.5
     var_imu_w = 1.0
-    var_cam = 1.0
+    var_cam = 0.8
 
     # Jacobian matrices
     g = np.array([0, 0,0 ])  # gravity
@@ -314,14 +318,13 @@ def main():
            
             trajectory = [np.array([0, 0, 0])]
             trajectory =pose_mat[0:3,3].T
-            delta_t = 0.1
+            delta_t = time_s[k - 1]-time_s[k]
             
             # print("pose_mat",pose_mat)
             # Update state with IMU inputs
             # fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]),ts=0.1)
 
             C_ni =Quaternion(*q_check).to_mat() # pose_mat[0:3,0:3]# Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
-            p_imu = p_imu + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k + 2 ]) + g))
             p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k + 2 ]) + g)) # Position calculation
             v_check = v_check + (delta_t * (C_ni.dot(imu_f[1:4, k + 2 ]) + g)) #velocity calculation
             #q_check = Quaternion(axis_angle = imu_f[4:7, k ] * delta_t).quat_mult(q_check) #Quaternion calculation (Current orientation)
