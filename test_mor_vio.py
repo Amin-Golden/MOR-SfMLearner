@@ -337,7 +337,8 @@ def main():
             p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k ]) + g)) # Position calculation
             v_check = v_check + (delta_t * (C_ni.dot(imu_f[1:4, k ]) + g)) #velocity calculation
             #q_check = Quaternion(axis_angle = imu_f[4:7, k ] * delta_t).quat_mult(q_check) #Quaternion calculation (Current orientation)
-            q=rot2Quat(Rot[k-1].reshape(3,3))
+            
+            q=rot2Quat(pose_mat[0:3,0:3])
             q_check    = Quaternion(np.array(q)).quat_mult(q_check)
             # Linearize Motion Model
             F = f_jac # F matrix value assignation
