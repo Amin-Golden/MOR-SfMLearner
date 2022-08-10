@@ -61,16 +61,16 @@ class Quaternion():
             sp = np.sin(pitch * 0.5)
 
             # static frame
-            # self.w = cr * cp * cy + sr * sp * sy
-            # self.x = sr * cp * cy - cr * sp * sy
-            # self.y = cr * sp * cy + sr * cp * sy
-            # self.z = cr * cp * sy - sr * sp * cy
+            self.w = cr * cp * cy + sr * sp * sy
+            self.x = sr * cp * cy - cr * sp * sy
+            self.y = cr * sp * cy + sr * cp * sy
+            self.z = cr * cp * sy - sr * sp * cy
 
             # rotating frame
-            self.w = cr * cp * cy - sr * sp * sy
-            self.x = cr * sp * sy + sr * cp * cy
-            self.y = cr * sp * cy - sr * cp * sy
-            self.z = cr * cp * sy + sr * sp * cy
+            # self.w = cr * cp * cy - sr * sp * sy
+            # self.x = cr * sp * sy + sr * cp * cy
+            # self.y = cr * sp * cy - sr * cp * sy
+            # self.z = cr * cp * sy + sr * sp * cy
 
     def __repr__(self):
         return "Quaternion (wxyz): [%2.5f, %2.5f, %2.5f, %2.5f]" % (self.w, self.x, self.y, self.z)

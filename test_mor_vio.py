@@ -85,6 +85,13 @@ def load_tensor_image(img_r, args):
 
 
 @torch.no_grad()
+def rot2Quat(M1):
+   r = np.math.sqrt(float(1)+M1[0,0]+M1[1,1]+M1[2,2])*0.5
+   i = (M1[2,1]-M1[1,2])/(4*r)
+   j = (M1[0,2]-M1[2,0])/(4*r)
+   k = (M1[1,0]-M1[0,1])/(4*r)
+   return(k,-j,i,r)
+
 
 def main():
     
@@ -325,12 +332,13 @@ def main():
             # Update state with IMU inputs
             fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]),ts=0.1)
 
-            C_ni = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
+            C_ni =Quaternion(*q_check).to_mat() # pose_mat[0:3,0:3]# Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
             p_imu = p_imu + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k ]) + g))
             p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k ]) + g)) # Position calculation
             v_check = v_check + (delta_t * (C_ni.dot(imu_f[1:4, k ]) + g)) #velocity calculation
             #q_check = Quaternion(axis_angle = imu_f[4:7, k ] * delta_t).quat_mult(q_check) #Quaternion calculation (Current orientation)
-            q_check    = fuse.q
+            q=rot2Quat(Rot[k-1].reshape(3,3))
+            q_check    = Quaternion(np.array(q)).quat_mult(q_check)
             # Linearize Motion Model
             F = f_jac # F matrix value assignation
             F[0:3,3:6] = np.eye(3) * delta_t 
@@ -356,7 +364,7 @@ def main():
             q_est[k] = q_check
             p_cov[k] = p_cov_check
 
-            Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
+            # Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
 
             # pose_mat[0:3,0:3]=Rot
             pose_mat[0:3,3]=p_check.T
