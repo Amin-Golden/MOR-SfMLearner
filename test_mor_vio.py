@@ -321,9 +321,9 @@ def main():
             # fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]),ts=0.1)
 
             C_ni =Quaternion(*q_check).to_mat() # pose_mat[0:3,0:3]# Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
-            p_imu = p_imu + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k - 1 ]) + g))
-            p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) # Position calculation
-            v_check = v_check + (delta_t * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) #velocity calculation
+            p_imu = p_imu + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k + 2 ]) + g))
+            p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k + 2 ]) + g)) # Position calculation
+            v_check = v_check + (delta_t * (C_ni.dot(imu_f[1:4, k + 2 ]) + g)) #velocity calculation
             #q_check = Quaternion(axis_angle = imu_f[4:7, k ] * delta_t).quat_mult(q_check) #Quaternion calculation (Current orientation)
             
             q=rot2Quat(pose_mat[0:3,0:3])
@@ -332,7 +332,7 @@ def main():
             F = f_jac # F matrix value assignation
             F[0:3,3:6] = np.eye(3) * delta_t 
             #F[3:6,6:9] = -1 * skew_symmetric(C_ni.dot(imu[1:4, k - 1])) * delta_t 
-            F[3:6,6:9] = -1 * C_ni.dot(skew_symmetric(imu_f[1:4, k - 1 ])) * delta_t # This line is the forum suggestion and works much better
+            F[3:6,6:9] = -1 * C_ni.dot(skew_symmetric(imu_f[1:4, k + 2 ])) * delta_t # This line is the forum suggestion and works much better
             F[6:9,6:9] = Quaternion(*q_check).to_mat().T # This line is the forum suggestion and works much better
 
             Q = Q_imu * (delta_t**2) # Variance calculation in discrete time
