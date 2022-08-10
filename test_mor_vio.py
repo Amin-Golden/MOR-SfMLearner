@@ -85,12 +85,6 @@ def load_tensor_image(img_r, args):
 
 
 @torch.no_grad()
-def rot2Quat(M1):
-   r = np.math.sqrt(float(1)+M1[0,0]+M1[1,1]+M1[2,2])*0.5
-   i = (M1[2,1]-M1[1,2])/(4*r)
-   j = (M1[0,2]-M1[2,0])/(4*r)
-   k = (M1[1,0]-M1[0,1])/(4*r)
-   return(k,-j,i,r)
 
 
 def main():
@@ -134,11 +128,10 @@ def main():
     imu_f = imu_f.values.tolist()
     imu_f = np.array(imu_f).T
 
-    for k in range(1, imu_f[0,:].shape[0]): 
-        imu_f[1, k - 1]=imu_f[1, k - 1] * -1
-        imu_f[2, k - 1]=imu_f[2, k - 1] * -1
-        imu_f[4, k - 1]=imu_f[4, k - 1] * -1
-        imu_f[5, k - 1]=imu_f[5, k - 1] * -1
+    for j in range(0, imu_f[0,:].shape[0]): 
+        imu_f[1, j]=imu_f[1,j] * -1
+        
+ 
     
 
     # Covariance errors of the Acceleronmeter, Gyroscome and Camera
@@ -147,7 +140,7 @@ def main():
     var_cam = 1.0
 
     # Jacobian matrices
-    g = np.array([0, 9.81,0 ])  # gravity
+    g = np.array([0, -9.81,0 ])  # gravity
     l_jac = np.zeros([9, 6])
     l_jac[3:, :] = np.eye(6)  # motion model noise jacobian
     h_jac = np.zeros([3, 9])
@@ -171,17 +164,14 @@ def main():
     q_est[0] = Quaternion(w=1, x=0, y=0, z=0).to_numpy()
     p_cov[0] = np.eye(9)  # covariance of estimate
     cam_i = 0 # Count camera updates
-    def scale_lse_solver(X, Y):
-        """Least-sqaure-error solver
-        Compute optimal scaling factor so that s(X)-Y is minimum
-        Args:
-            X (KxN array): current data
-            Y (KxN array): reference data
-        Returns:
-            scale (float): scaling factor
-        """
-        scale = np.sum(X * Y)/np.sum(X ** 2)
-        return scale
+ 
+    def rot2Quat(M1):
+        r = np.math.sqrt(float(1)+M1[0,0]+M1[1,1]+M1[2,2])*0.5
+        i = (M1[2,1]-M1[1,2])/(4*r)
+        j = (M1[0,2]-M1[2,0])/(4*r)
+        k = (M1[1,0]-M1[0,1])/(4*r)
+        return(k,-j,i,r)
+
 
     #### 4. Measurement Update #####################################################################
 
@@ -216,8 +206,6 @@ def main():
     f_jac = np.eye(9) # Jacobian matrix initialization
     Q_imu = np.diag([var_imu_f, var_imu_f, var_imu_f, var_imu_w, var_imu_w, var_imu_w]) # Q variance matrix
 
-    xyz_pred = [[0,0,0],[0,0,0]]
-    xyz_ref = [[0,0,0],[0,0,0]]
 
     scale=1
 
