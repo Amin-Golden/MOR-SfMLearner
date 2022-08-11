@@ -139,9 +139,9 @@ def main():
     
 
     # Covariance errors of the Acceleronmeter, Gyroscome and Camera
-    var_imu_f = 0.5
+    var_imu_f = 0.1
     var_imu_w = 1.0
-    var_cam = 0.8
+    var_cam = 1.0
 
     # Jacobian matrices
     g = np.array([0, 0,0 ])  # gravity
