@@ -120,7 +120,7 @@ def main():
     ################# EKF init #################################################################################
     fuse = Fusion(0.1)
 
-    times_dir = Path(args.dataset_dir + args.sequence + "times.txt")
+    times_dir = Path(args.dataset_dir + args.sequence + "/times.txt")
     time_s=pd.read_csv(times_dir)
     time_s = time_s.values.tolist()
     time_s = np.array(time_s) 
