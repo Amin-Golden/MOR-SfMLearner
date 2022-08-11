@@ -67,6 +67,9 @@ parser.add_argument('--update', action='store_true', help='update all models')
 parser.add_argument('--view-img', action='store_true', default=False, help='show results')
 
 parser.add_argument("--sequence", default='09', type=str, help="sequence to test")
+parser.add_argument("--var-imu-f", default=1.0, type=float, help="var_imu_f")
+parser.add_argument("--var-imu-w", default=1.0, type=float, help="var_imu_w")
+parser.add_argument("--var-cam", default=1.0, type=float, help="var_cam")
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 # vid = cv2.VideoCapture(2)
@@ -139,9 +142,9 @@ def main():
     
 
     # Covariance errors of the Acceleronmeter, Gyroscome and Camera
-    var_imu_f = 0.1
-    var_imu_w = 1.0
-    var_cam = 1.0
+    var_imu_f = args.var_imu_f 
+    var_imu_w = args.var_imu_w
+    var_cam = args.var_cam
 
     # Jacobian matrices
     g = np.array([0, 0,0 ])  # gravity
