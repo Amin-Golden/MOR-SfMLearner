@@ -127,7 +127,7 @@ def main():
 
     imu_dir="datasets/oxts" + args.sequence +".txt"
     imu=pd.read_csv(imu_dir, sep=" ", header=None, names=["lat", "lon","alt","roll","pitch","yaw","vn","ve","vf","vl","vu","ax","ay","az","af","al","au","wx","wy","wz","wf","wl","wu","pos_accuracy","vel_accuracy","navstat","numsats","posmode","velmode","orimode"])
-    feature=["vf","ay","az","ax","wy","wz","wx","roll","pitch","yaw"]
+    feature=["vf","al","au","af","wx","wy","wz","roll","pitch","yaw"]
     imu_f=imu[feature]
     imu_f = imu_f.values.tolist()
     imu_f = np.array(imu_f).T
