@@ -482,7 +482,7 @@ def compare_2d_angles(ground_truth, rotations, title = "VO vs Ground Truth angle
     plt.tight_layout()
     plt.show()
 
-def compare_2d_rpyq(ground_truth, rotations, title = "VO vs Ground Truth angles"):
+def compare_2d_rpy(ground_truth, rotations, title = "VO vs Ground Truth angles"):
     """
     Plot the comparison between the vehicle's ground truth orientation and the estimated orientation
     :param ground_truth: Numpy array (4 x M) where M is the number of samples. 
@@ -514,7 +514,7 @@ def compare_2d_rpyq(ground_truth, rotations, title = "VO vs Ground Truth angles"
 
     for i in range(0, rotations.shape[1]):
         current_rot = rotations[:, i]
-        q = Quaternion(*current_rot).to_euler()
+        q = current_rot
         
         roll_es.append(q.item(0))
         pitch_es.append(q.item(1))
