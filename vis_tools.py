@@ -482,6 +482,145 @@ def compare_2d_angles(ground_truth, rotations, title = "VO vs Ground Truth angle
     plt.tight_layout()
     plt.show()
 
+def compare_2d_rpyq(ground_truth, rotations, title = "VO vs Ground Truth angles"):
+    """
+    Plot the comparison between the vehicle's ground truth orientation and the estimated orientation
+    :param ground_truth: Numpy array (4 x M) where M is the number of samples. 
+        This variable has a Quaternion at each time-step and this is the ground truth.
+    :param trajectory: Numpy array (4 x M) where M is the number of samples. 
+        This variable has a Quaternion at each time-step and this is the estimated orientation.
+    :param title: Name of the plot
+    """
+
+    # list to unpack roll, pitch, yaw angles from the ground truth
+    roll = []
+    pitch = []
+    yaw = []
+    # Unpack roll pitch and yaw estimations
+    roll_es = []
+    pitch_es = []
+    yaw_es = []
+    # X axis
+    x_axis = np.arange(ground_truth.shape[1])
+    x_axis_es = np.arange(rotations.shape[1])
+    
+    for i in range(0, ground_truth.shape[1]):
+        current_rot = ground_truth[:, i]
+        q = current_rot
+        
+        roll.append(q.item(0))
+        pitch.append(q.item(1))
+        yaw.append(q.item(2))
+
+    for i in range(0, rotations.shape[1]):
+        current_rot = rotations[:, i]
+        q = Quaternion(*current_rot).to_euler()
+        
+        roll_es.append(q.item(0))
+        pitch_es.append(q.item(1))
+        yaw_es.append(q.item(2))
+        
+    # Axis limits for Roll, Pitch and Yaw Ground Truth
+    maxR = np.amax(roll) + 0.1
+    minR = np.amin(roll) - 0.1
+    maxP = np.amax(pitch) + 0.1
+    minP = np.amin(pitch) - 0.1
+    maxY = np.amax(yaw) + 0.1
+    minY = np.amin(yaw) - 0.1
+    maxX = ground_truth.shape[1] + 10
+    minX = -5
+
+    # Axis limits for Roll, Pitch and Yaw estimated
+    maxR_es = np.amax(roll_es) + 0.1
+    minR_es = np.amin(roll_es) - 0.1
+    maxP_es = np.amax(pitch_es) + 0.1
+    minP_es = np.amin(pitch_es) - 0.1
+    maxY_es = np.amax(yaw_es) + 0.1
+    minY_es = np.amin(yaw_es) - 0.1
+    maxX_es = rotations.shape[1] + 10
+    minX_es = -5
+
+    # Set styles
+    mpl.rc("figure", facecolor="white")
+    plt.style.use("seaborn-whitegrid")
+
+    # Plot the figure
+    fig = plt.figure(figsize=(8, 6), dpi=100)
+    gspec = gridspec.GridSpec(3, 2)
+    R_plt = plt.subplot(gspec[0,0])
+    P_plt = plt.subplot(gspec[1,0])
+    Y_plt = plt.subplot(gspec[2,0])
+    R_plt_es = plt.subplot(gspec[0,1])
+    P_plt_es = plt.subplot(gspec[1,1])
+    Y_plt_es = plt.subplot(gspec[2,1])
+    
+    toffset = 1.0
+    
+    # Roll Orientation
+    R_plt.set_title(r'Roll angle GT $\theta$', y=toffset)
+    R_plt.plot(x_axis, roll, "-", label="Angle GT", zorder=1, linewidth=1.5, markersize=2)
+    R_plt.set_ylabel("Roll [rads]")
+    # Plot initial location
+    R_plt.scatter([0], [0], s=8, c="green", label="Start location", zorder=2)
+    R_plt.scatter(x_axis[-1], roll[-1], s=8, c="red", label="End location", zorder=2)
+    R_plt.set_xlim([minX, maxX])
+    R_plt.set_ylim([minR, maxR])
+
+    # Roll Orientation estimated
+    R_plt_es.set_title(r'Roll angle Estimated $\theta$', y=toffset)
+    R_plt_es.plot(x_axis_es, roll_es, "-", c="orange", label="Angle Estimated", zorder=1, linewidth=1.5, markersize=2)
+    R_plt_es.axes.xaxis.set_ticklabels([])
+    # Plot initial location
+    R_plt_es.scatter([0], [0], s=8, c="blue", label="Start location", zorder=2)
+    R_plt_es.scatter(x_axis_es[-1], roll_es[-1], s=8, c="purple", label="End location", zorder=2)
+    R_plt_es.set_xlim([minX_es, maxX_es])
+    R_plt_es.set_ylim([minR_es, maxR_es])
+        
+    # Pitch Orientation
+    P_plt.set_title(r'Pitch angle GT $\beta$', y=toffset)
+    P_plt.set_ylabel("Roll [rads]")
+    P_plt.axes.xaxis.set_ticklabels([])
+    P_plt.plot(x_axis, pitch, "-", linewidth=1.5, label="Angle GT", markersize=2, zorder=1)
+    P_plt.scatter([0], [0], s=8, c="green", label="Start location", zorder=2)
+    P_plt.scatter(x_axis[-1], pitch[-1], s=8, c="red", label="End location", zorder=2)
+    P_plt.set_xlim([minX, maxX])
+    P_plt.set_ylim([minP, maxP])
+
+    # Pitch Orientation estimated
+    P_plt_es.set_title(r'Pitch angle Estimated $\beta$', y=toffset)
+    P_plt_es.axes.xaxis.set_ticklabels([])
+    P_plt_es.plot(x_axis_es, pitch_es, "-", linewidth=1.5, c="orange", label="Angle Estimated", markersize=2, zorder=1)
+    P_plt_es.scatter([0], [0], s=8, c="blue", label="Start location", zorder=2)
+    P_plt_es.scatter(x_axis_es[-1], pitch_es[-1], s=8, c="purple", label="End location", zorder=2)
+    P_plt_es.set_xlim([minX_es, maxX_es])
+    P_plt_es.set_ylim([minP_es, maxP_es])
+    
+    # Yaw Trajectory
+    Y_plt.set_title(r'Yaw angle GT $\gamma$', y=toffset)
+    Y_plt.set_ylabel("Yaw [rads]")
+    Y_plt.axes.xaxis.set_ticklabels([])
+    Y_plt.plot(x_axis, yaw, "-", linewidth=1.5, label="Angle GT", markersize=2, zorder=1)
+    Y_plt.scatter([0], [0], s=8, c="green", label="Start location", zorder=2)
+    Y_plt.scatter(x_axis[-1], yaw[-1], s=8, c="red", label="End location", zorder=2)
+    Y_plt.set_xlim([minX, maxX])
+    Y_plt.set_ylim([minY, maxY])
+    Y_plt.legend(loc=4, title="Legend", borderaxespad=0., fontsize="medium", frameon=True)
+
+    # Yaw Orientation estimated
+    Y_plt_es.set_title(r'Yaw angle Estimated $\gamma$', y=toffset)
+    Y_plt_es.axes.xaxis.set_ticklabels([])
+    Y_plt_es.plot(x_axis_es, yaw_es, "-", linewidth=1.5, c="orange", label="Angle Estimated", markersize=2, zorder=1)
+    Y_plt_es.scatter([0], [0], s=8, c="blue", label="Start location", zorder=2)
+    Y_plt_es.scatter(x_axis_es[-1], yaw_es[-1], s=8, c="purple", label="End location", zorder=2)
+    Y_plt_es.set_xlim([minX_es, maxX_es])
+    Y_plt_es.set_ylim([minY_es, maxY_es])
+    Y_plt_es.legend(loc=4, title="Legend", borderaxespad=0., fontsize="medium", frameon=True)
+    
+    # Plotting the result
+    fig.suptitle(title, fontsize=16, y = 1.05)
+    plt.tight_layout()
+    plt.show()
+
 def compare_3d_all(ground_truth, trajectory_vo, trajectory_vio, title):
 	"""
 	Plot the vehicle's trajectory in 3D space for the ground truth, VO and VIO estimates
