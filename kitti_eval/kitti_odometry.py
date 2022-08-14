@@ -521,6 +521,8 @@ class KittiEvalOdom():
         Rivelo=np.array(imu_velo_rot).reshape(3,3)
         Rivelo=np.array(velo_cam_rot).reshape(3,3)
         RIO=Rivelo.dot(Rivelo)
+        TIO = np.hstack([RIO, np.array([0, 0, 0])])
+        TIO = np.vstack([TIO, np.array([0, 0, 0, 1])])
 
         if not os.path.exists(error_dir):
             os.makedirs(error_dir)
@@ -550,10 +552,10 @@ class KittiEvalOdom():
             # Pose alignment to first frame
             idx_0 = sorted(list(poses_result.keys()))[0]
             pred_0 = poses_result[idx_0]
-            gt_0 = RIO.dot(poses_gt[idx_0])
+            gt_0 = TIO.dot(poses_gt[idx_0])
             for cnt in poses_result:
                 poses_result[cnt] = np.linalg.inv(pred_0) @ poses_result[cnt]
-                poses_gt[cnt] = np.linalg.inv(gt_0) @ RIO.dot(poses_gt[cnt])
+                poses_gt[cnt] = np.linalg.inv(gt_0) @ TIO.dot(poses_gt[cnt])
 
             if alignment == "scale":
                 poses_result = self.scale_optimization(poses_gt, poses_result)
