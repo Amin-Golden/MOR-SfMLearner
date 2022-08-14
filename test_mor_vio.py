@@ -324,12 +324,11 @@ def main():
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
            
-            print("pose_mat",pose_mat)
-            print("pose_mat[2,3]",pose_mat[2,3])
+            # print("pose_mat",pose_mat)
             trajectory = [np.array([0, 0, 0])]
-            trajectory[0] =pose_mat[2,3]
-            trajectory[1] =pose_mat[0,3] * -1
-            trajectory[2] =pose_mat[1,3] * -1
+            trajectory[0][0] = pose_mat[2,3]
+            trajectory[0][1] = pose_mat[0,3] * -1
+            trajectory[0][2] = pose_mat[1,3] * -1
             delta_t = 0.1 # time_s[k - 1]-time_s[k]
             
             # Update state with IMU inputs
