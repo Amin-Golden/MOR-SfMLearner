@@ -360,7 +360,8 @@ def main():
 
             # Check availability of Cam measurements
 
-            
+            print("trajectory",trajectory)
+            print("p_check",p_check)
                 
             p_check, v_check, p_cov_check ,a_check = measurement_update(var_cam, p_cov_check, trajectory, p_check, v_check,a_check)
                     
