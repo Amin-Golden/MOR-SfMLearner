@@ -131,7 +131,7 @@ def main():
 
     imu_dir="datasets/oxts" + args.sequence +".txt"
     imu=pd.read_csv(imu_dir, sep=" ", header=None, names=["lat", "lon","alt","roll","pitch","yaw","vn","ve","vf","vl","vu","ax","ay","az","af","al","au","wx","wy","wz","wf","wl","wu","pos_accuracy","vel_accuracy","navstat","numsats","posmode","velmode","orimode"])
-    feature=["vf","al","au","af","wx","wy","wz","roll","pitch","yaw"]
+    feature=["vf","ax","ay","az","wx","wy","wz","roll","pitch","yaw"]
     imu_f=imu[feature]
     imu_f = imu_f.values.tolist()
     imu_f = np.array(imu_f).T
@@ -148,10 +148,10 @@ def main():
     var_cam = args.var_cam
 
     # Jacobian matrices
-    g = np.array([0, 0,-9.81 ])  # gravity
-    l_jac = np.zeros([9, 6])
+    g = np.array([0, 0,-9.8])  # gravity
+    l_jac = np.zeros([9, 6]) #!
     l_jac[3:, :] = np.eye(6)  # motion model noise jacobian
-    h_jac = np.zeros([3, 9])
+    h_jac = np.zeros([3, 9])  #!
     h_jac[:, :3] = np.eye(3)  # measurement model jacobian
 
     #### 3. Initial Values #########################################################################
@@ -165,16 +165,15 @@ def main():
     q_est = np.zeros([imu_f[0,:].shape[0], 4])  # orientation estimates as quaternions
     p_cov = np.zeros([imu_f[0,:].shape[0], 9, 9])  # covariance matrices at each timestep
     a_est = np.zeros([imu_f[0,:].shape[0], 3])
-
     # Set initial values
-    p_imu_est[0] = [0,0,0]
+    p_imu_est[0] = [0.0,0.0,0.0]
     p_est[0] = [0,0,0] # Start the position at the first known orientation provided by the ground truth
     v_est[0] = np.zeros(3) # Start velocity stimes at cero
     q_est[0] = Quaternion(w=1, x=0, y=0, z=0).to_numpy()
     p_cov[0] = np.eye(9)  # covariance of estimate
     a_est[0] =  np.zeros(3)
     cam_i = 0 # Count camera updates
- 
+
     def rot2Quat(M1):
         r = np.math.sqrt(float(1)+M1[0,0]+M1[1,1]+M1[2,2])*0.5
         i = (M1[2,1]-M1[1,2])/(4*r)
@@ -211,16 +210,17 @@ def main():
 
     #### 5. Main Filter Loop #######################################################################
 
+
     p_check = p_est[0] # Position check
     p_imu = p_est[0] # Position check
+    v_imu = v_est[0] # Velocity check
     v_check = v_est[0] # Velocity check
     q_check = q_est[0] # Orientation check
-    p_cov_check = p_cov[0]
     a_check = a_est[0]
+    p_cov_check = p_cov[0]
 
     f_jac = np.eye(9) # Jacobian matrix initialization
     Q_imu = np.diag([var_imu_f, var_imu_f, var_imu_f, var_imu_w, var_imu_w, var_imu_w]) # Q variance matrix
-
 
     scale=1
 
