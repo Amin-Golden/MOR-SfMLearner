@@ -324,13 +324,14 @@ def main():
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
            
+            print("pose_mat",pose_mat)
+            print("pose_mat[2,3]",pose_mat[2,3])
             trajectory = [np.array([0, 0, 0])]
             trajectory[0] =pose_mat[2,3]
             trajectory[1] =pose_mat[0,3] * -1
             trajectory[2] =pose_mat[1,3] * -1
             delta_t = 0.1 # time_s[k - 1]-time_s[k]
             
-            # print("pose_mat",pose_mat)
             # Update state with IMU inputs
             # fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]),ts=0.1)
             r=R.from_euler('xyz',imu_f[7:10, k-1])
