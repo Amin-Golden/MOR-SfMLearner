@@ -515,14 +515,15 @@ class KittiEvalOdom():
         self.plot_error_dir = result_dir + "/plot_error"
         result_txt = os.path.join(result_dir, "result.txt")
         f = open(result_txt, 'w')
+        TIO = np.eye(4)
         imu_velo_rot =[9.999976e-01 , 7.553071e-04 ,-2.035826e-03,-7.854027e-04, 9.998898e-01 ,-1.482298e-02, 2.024406e-03,1.482454e-02, 9.998881e-01]
         velo_cam_rot =[7.027555e-03, -9.999753e-01 , 2.599616e-05 ,-2.254837e-03 ,-4.184312e-05, -9.999975e-01, 9.999728e-01, 7.027479e-03 ,-2.255075e-03]
 
         Rivelo=np.array(imu_velo_rot).reshape(3,3)
         Rivelo=np.array(velo_cam_rot).reshape(3,3)
         RIO=Rivelo.dot(Rivelo)
-        TIO = np.hstack([RIO, np.array([0, 0, 0])])
-        TIO = np.vstack([TIO, np.array([0, 0, 0, 1])])
+        TIO[0:3,0:3] = RIO
+        
 
         if not os.path.exists(error_dir):
             os.makedirs(error_dir)
