@@ -185,7 +185,7 @@ def main():
 
     #### 4. Measurement Update #####################################################################
 
-    def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check):
+    def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check,a_check):
         # Compute Kalman Gain
         R = np.diag([sensor_var, sensor_var, sensor_var]) # Measurement covariance matrix calculation
 
