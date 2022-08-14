@@ -185,7 +185,7 @@ def main():
 
     #### 4. Measurement Update #####################################################################
 
-    def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check,a_check):
+    def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check,a_check):
         # Compute Kalman Gain
         R = np.diag([sensor_var, sensor_var, sensor_var]) # Measurement covariance matrix calculation
 
@@ -203,7 +203,7 @@ def main():
         # Compute corrected covariance
         p_cov_check = (np.eye(9) - K.dot(h_jac)).dot(p_cov_check)
 
-        return p_check, v_check, q_check, p_cov_check , a_check
+        return p_check, v_check, p_cov_check , a_check
 
 
     #### 5. Main Filter Loop #######################################################################
