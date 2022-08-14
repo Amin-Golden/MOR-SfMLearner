@@ -38,6 +38,7 @@ import random
 from rotations import Quaternion, skew_symmetric
 from vis_tools import *
 from fusion import Fusion
+from scipy.spatial.transform import Rotation as R
 
 FILE = Path1(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -135,8 +136,8 @@ def main():
     imu_f = imu_f.values.tolist()
     imu_f = np.array(imu_f).T
 
-    for j in range(0, imu_f[0,:].shape[0]): 
-        imu_f[1, j]=imu_f[1,j] * -1
+    # for j in range(0, imu_f[0,:].shape[0]): 
+    #     imu_f[1, j]=imu_f[1,j] * -1
         
  
     
@@ -147,7 +148,7 @@ def main():
     var_cam = args.var_cam
 
     # Jacobian matrices
-    g = np.array([0, 0,0 ])  # gravity
+    g = np.array([0, 0,-9.81 ])  # gravity
     l_jac = np.zeros([9, 6])
     l_jac[3:, :] = np.eye(6)  # motion model noise jacobian
     h_jac = np.zeros([3, 9])
@@ -163,13 +164,15 @@ def main():
     v_est = np.zeros([imu_f[0,:].shape[0], 3])  # velocity estimates
     q_est = np.zeros([imu_f[0,:].shape[0], 4])  # orientation estimates as quaternions
     p_cov = np.zeros([imu_f[0,:].shape[0], 9, 9])  # covariance matrices at each timestep
-    
+    a_est = np.zeros([imu_f[0,:].shape[0], 3])
+
     # Set initial values
     p_imu_est[0] = [0,0,0]
     p_est[0] = [0,0,0] # Start the position at the first known orientation provided by the ground truth
     v_est[0] = np.zeros(3) # Start velocity stimes at cero
     q_est[0] = Quaternion(w=1, x=0, y=0, z=0).to_numpy()
     p_cov[0] = np.eye(9)  # covariance of estimate
+    a_est[0] =  np.zeros(3)
     cam_i = 0 # Count camera updates
  
     def rot2Quat(M1):
@@ -194,12 +197,13 @@ def main():
         # Correct predicted state
         p_check = p_check + error_x[0:3] 
         v_check = v_check + error_x[3:6]
-        q_check = Quaternion(axis_angle = error_x[6:9]).quat_mult(q_check)
+        # q_check = Quaternion(axis_angle = error_x[6:9]).quat_mult(q_check)
+        a_check = a_check + error_x[6:9]
 
         # Compute corrected covariance
         p_cov_check = (np.eye(9) - K.dot(h_jac)).dot(p_cov_check)
 
-        return p_check, v_check, q_check, p_cov_check
+        return p_check, v_check, q_check, p_cov_check , a_check
 
 
     #### 5. Main Filter Loop #######################################################################
@@ -209,6 +213,7 @@ def main():
     v_check = v_est[0] # Velocity check
     q_check = q_est[0] # Orientation check
     p_cov_check = p_cov[0]
+    a_check = a_est[0]
 
     f_jac = np.eye(9) # Jacobian matrix initialization
     Q_imu = np.diag([var_imu_f, var_imu_f, var_imu_f, var_imu_w, var_imu_w, var_imu_w]) # Q variance matrix
@@ -320,28 +325,31 @@ def main():
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
            
             trajectory = [np.array([0, 0, 0])]
-            trajectory =pose_mat[0:3,3].T
+            trajectory[0] =pose_mat[2,3]
+            trajectory[1] =pose_mat[0,3] * -1
+            trajectory[2] =pose_mat[1,3] * -1
             delta_t = 0.1 # time_s[k - 1]-time_s[k]
             
             # print("pose_mat",pose_mat)
             # Update state with IMU inputs
             # fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]),ts=0.1)
-
-            C_ni =Quaternion(*q_check).to_mat() # pose_mat[0:3,0:3]# Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
+            r=R.from_euler('xyz',imu_f[7:10, k-1])
+            C_ni  =  r.as_matrix()
+            # C_ni =Quaternion(*q_check).to_mat() # pose_mat[0:3,0:3]# Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
             p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) # Position calculation
             v_check = v_check + (delta_t * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) #velocity calculation
             #q_check = Quaternion(axis_angle = imu_f[4:7, k ] * delta_t).quat_mult(q_check) #Quaternion calculation (Current orientation)
-            
-            q=rot2Quat(pose_mat[0:3,0:3])
-            q_check    = Quaternion(np.array(q)).quat_mult(q_check)
+            a_check = C_ni.dot(imu_f[1:4, k - 1]) + g
+
+            # q=rot2Quat(pose_mat[0:3,0:3])
+            # q_check    = Quaternion(np.array(q)).quat_mult(q_check)
             # Linearize Motion Model
             F = f_jac # F matrix value assignation
             F[0:3,3:6] = np.eye(3) * delta_t 
-            #F[3:6,6:9] = -1 * skew_symmetric(C_ni.dot(imu[1:4, k - 1])) * delta_t 
-            F[3:6,6:9] = -1 * C_ni.dot(skew_symmetric(imu_f[1:4, k - 1 ])) * delta_t # This line is the forum suggestion and works much better
-            F[6:9,6:9] = Quaternion(*q_check).to_mat().T # This line is the forum suggestion and works much better
+            F[0:3,6:9] = -0.5 * skew_symmetric(C_ni.dot(imu_f[1:4, k - 1])) * (delta_t**2 )
+            F[3:6,6:9] = -1 * skew_symmetric(C_ni.dot(imu_f[1:4, k - 1])) * delta_t 
 
-            Q = Q_imu * (delta_t**2) # Variance calculation in discrete time
+            Q = Q_imu * (delta_t) # Variance calculation in discrete time
 
             # Propagate uncertainty
             p_cov_check = F.dot(p_cov_check).dot(F.T) + l_jac.dot(Q).dot(l_jac.T) #Variance calculation
@@ -350,7 +358,7 @@ def main():
 
             
                 
-            p_check, v_check, q_check, p_cov_check = measurement_update(var_cam, p_cov_check, trajectory, p_check, v_check, q_check)
+            p_check, v_check, p_cov_check ,a_check = measurement_update(var_cam, p_cov_check, trajectory, p_check, v_check,a_check)
                     
             # Save current states
             p_imu_est[k] = p_imu
@@ -358,13 +366,14 @@ def main():
             v_est[k] = v_check
             q_est[k] = q_check
             p_cov[k] = p_cov_check
+            a_est[k] = a_check
 
             # Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
 
             # pose_mat[0:3,0:3]=Rot
             pose_mat[0:3,3]=p_check.T
             print("trajectory : \n",pose_mat[0:3,3])
-            
+            pose_mat[0:3,0:3] = C_ni
             global_pose = global_pose @  np.linalg.inv(pose_mat)
             print("global_pose",global_pose[0:3, :])
             poses.append(global_pose[0:3, :].reshape(1, 12))
