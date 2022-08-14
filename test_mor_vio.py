@@ -338,6 +338,7 @@ def main():
             # fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]),ts=0.1)
             r=R.from_euler('xyz',imu_f[7:10, k-1])
             C_ni  =  r.as_matrix()
+            print("C_ni",C_ni)
             # C_ni =Quaternion(*q_check).to_mat() # pose_mat[0:3,0:3]# Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
             p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) # Position calculation
             v_check = v_check + (delta_t * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) #velocity calculation
