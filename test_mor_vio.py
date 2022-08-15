@@ -342,6 +342,7 @@ def main():
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
             # pose_mat = TCI.dot(pose_mat)
+            pose_mat = TCI @  np.linalg.inv(pose_mat)
 
             print("pose_mat",pose_mat)
             r=R.from_euler('xyz',imu_f[7:10, k-1])
