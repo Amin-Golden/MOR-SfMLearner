@@ -141,6 +141,7 @@ def main():
 
     Riv=np.array(imu_velo_rot).reshape(3,3)
     Rvc=np.array(velo_cam_rot).reshape(3,3)
+    Ric = Riv.dot(Rvc)
     TCI[0:3,0:3] = Rvc.T.dot(Riv.T)
     current_pose = np.eye(4)
 
@@ -341,7 +342,7 @@ def main():
 
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
-            pose_mat = np.matmul(TCI,pose_mat)
+            # pose_mat = np.matmul(TCI,pose_mat)
             # pose_mat = TCI @  np.linalg.inv(pose_mat)
             # pose_mat[0:3,0:3] = TCI[0:3,0:3].dot(pose_mat[0:3,0:3])
             # pose_mat[0:3,3] = TCI[0:3,0:3].dot(pose_mat[0:3,3])
@@ -349,12 +350,13 @@ def main():
             print("pose_mat",pose_mat)
             r=R.from_euler('xyz',imu_f[7:10, k-1])
             C_ni  =  r.as_matrix()
-            current_pose [0:3,0:3] = C_ni
-            current_pose [0:3,3] = p_check.T
+            C_ni  = Ric.dot(C_ni)
+            # current_pose [0:3,0:3] = C_ni
+            # current_pose [0:3,3] = p_check.T
             # pose_mat[0:3,0:3] = trajectory.T
             # pose_mat[0:3,0:3] = C_ni
-            # global_traj = global_pose @  np.linalg.inv(pose_mat)
-            global_traj = current_pose.dot(pose_mat)      
+            global_traj = global_pose @  np.linalg.inv(pose_mat)
+            # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
             trajectory = [0,0,0]
             trajectory[0] = global_traj[0,3]
@@ -401,10 +403,10 @@ def main():
             a_est[k] = a_check
 
             # Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
-            # global_pose[0:3,0:3] = C_ni
-            # global_pose[0:3,3] = p_check.T
+            global_pose[0:3,0:3] = C_ni
+            global_pose[0:3,3] = p_check.T
             # pose_mat[0:3,0:3]=Rot
-            global_pose = global_pose @  np.linalg.inv(pose_mat)
+            # global_pose = global_pose @  np.linalg.inv(pose_mat)
             print("global_pose",global_pose[0:3, :])
             poses.append(global_pose[0:3, :].reshape(1, 12)) 
 
