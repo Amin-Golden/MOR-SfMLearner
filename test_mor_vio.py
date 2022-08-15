@@ -332,7 +332,7 @@ def main():
             k=k+1
             cv2.imwrite("test.jpg", im0)
             print("first image")
-            
+            print("TCI",TCI)
         else:
             tensor_img2,img = load_tensor_image(im0, args)
             
@@ -341,6 +341,8 @@ def main():
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
             pose_mat = TCI.dot(pose_mat)
+
+            print("pose_mat",pose_mat)
             r=R.from_euler('xyz',imu_f[7:10, k-1])
             C_ni  =  r.as_matrix()
 
