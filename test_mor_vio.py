@@ -135,6 +135,13 @@ def main():
     imu_f=imu[feature]
     imu_f = imu_f.values.tolist()
     imu_f = np.array(imu_f).T
+    TCI = np.eye(4)
+    imu_velo_rot =[9.999976e-01 , 7.553071e-04 ,-2.035826e-03,-7.854027e-04, 9.998898e-01 ,-1.482298e-02, 2.024406e-03,1.482454e-02, 9.998881e-01]
+    velo_cam_rot =[7.027555e-03, -9.999753e-01 , 2.599616e-05 ,-2.254837e-03 ,-4.184312e-05, -9.999975e-01, 9.999728e-01, 7.027479e-03 ,-2.255075e-03]
+
+    Riv=np.array(imu_velo_rot).reshape(3,3)
+    Rvc=np.array(velo_cam_rot).reshape(3,3)
+    TCI[0:3,0:3] = Rvc.T.dot(Riv.T)
 
     for k in range(1, imu_f[0,:].shape[0]): 
 
@@ -256,6 +263,7 @@ def main():
     # load GT and imu data
    
     global_pose = np.eye(4)
+    global_traj = np.eye(4)
     poses = [global_pose[0:3, :].reshape(1, 12)]
     k=0
     for path, im, im0s, vid_cap, s in dataset:
@@ -332,18 +340,24 @@ def main():
 
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
-           
+            pose_mat = TCI.dot(pose_mat)
+            r=R.from_euler('xyz',imu_f[7:10, k-1])
+            C_ni  =  r.as_matrix()
+
+            # pose_mat[0:3,0:3] = trajectory.T
+            # pose_mat[0:3,0:3] = C_ni
+            global_traj = global_pose @  np.linalg.inv(pose_mat)
+                    
             # print("pose_mat",pose_mat)
             trajectory = [0,0,0]
-            trajectory[0] = pose_mat[2,3]
-            trajectory[1] = pose_mat[0,3] * -1
-            trajectory[2] = pose_mat[1,3] * -1
+            trajectory[0] = global_traj[0,3]
+            trajectory[1] = global_traj[1,3] 
+            trajectory[2] = global_traj[2,3] 
             delta_t = 0.1 # time_s[k - 1]-time_s[k]
             
             # Update state with IMU inputs
             # fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]),ts=0.1)
-            r=R.from_euler('xyz',imu_f[7:10, k-1])
-            C_ni  =  r.as_matrix()
+
             # print("C_ni",C_ni)
             # C_ni =Quaternion(*q_check).to_mat() # pose_mat[0:3,0:3]# Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
             p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) # Position calculation
@@ -380,14 +394,11 @@ def main():
             a_est[k] = a_check
 
             # Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
-
+            global_pose[0:3,0:3] = C_ni
+            global_pose[0:3,3] = p_check.T
             # pose_mat[0:3,0:3]=Rot
-            pose_mat[0:3,3]=p_check.T
-            print("trajectory : \n",pose_mat[0:3,3])
-            pose_mat[0:3,0:3] = C_ni
-            global_pose = global_pose @  np.linalg.inv(pose_mat)
             print("global_pose",global_pose[0:3, :])
-            poses.append(global_pose[0:3, :].reshape(1, 12))
+            poses.append(global_pose[0:3, :].reshape(1, 12)) 
 
             # update
             tensor_img1 = tensor_img2
