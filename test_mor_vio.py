@@ -348,8 +348,8 @@ def main():
 
             # pose_mat[0:3,0:3] = trajectory.T
             # pose_mat[0:3,0:3] = C_ni
-            global_traj = global_pose @  np.linalg.inv(pose_mat)
-                    
+            # global_traj = global_pose @  np.linalg.inv(pose_mat)
+            global_traj = global_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
             trajectory = [0,0,0]
             trajectory[0] = global_traj[0,3]
