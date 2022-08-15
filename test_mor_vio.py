@@ -355,11 +355,11 @@ def main():
             # current_pose [0:3,3] = p_check.T
             # pose_mat[0:3,0:3] = trajectory.T
             # pose_mat[0:3,0:3] = C_ni
-            global_traj = global_pose @  np.linalg.inv(pose_mat)
+            global_traj = global_traj @  np.linalg.inv(pose_mat)
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
             trajectory = [0,0,0]
-            trajectory = p_check + global_traj[0:3,3].T
+            trajectory = global_traj[0:3,3].T
             # trajectory[0] = global_traj[0,3]
             # trajectory[1] = global_traj[1,3] 
             # trajectory[2] = global_traj[2,3] 
@@ -405,6 +405,7 @@ def main():
 
             # Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
             global_pose[0:3,0:3] = C_ni
+            global_traj[0:3,3] = p_check.T
             global_pose[0:3,3] = p_check.T
             # pose_mat[0:3,0:3]=Rot
             # global_pose = global_pose @  np.linalg.inv(pose_mat)
