@@ -341,7 +341,7 @@ def main():
 
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
-            # pose_mat = TCI.dot(pose_mat)
+            pose_mat = np.matmul(TCI,pose_mat)
             # pose_mat = TCI @  np.linalg.inv(pose_mat)
             # pose_mat[0:3,0:3] = TCI[0:3,0:3].dot(pose_mat[0:3,0:3])
             # pose_mat[0:3,3] = TCI[0:3,0:3].dot(pose_mat[0:3,3])
@@ -405,7 +405,6 @@ def main():
             # global_pose[0:3,3] = p_check.T
             # pose_mat[0:3,0:3]=Rot
             global_pose = global_pose @  np.linalg.inv(pose_mat)
-            global_pose = TCI.dot(global_pose)
             print("global_pose",global_pose[0:3, :])
             poses.append(global_pose[0:3, :].reshape(1, 12)) 
 
