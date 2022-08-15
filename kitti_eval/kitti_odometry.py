@@ -287,7 +287,7 @@ class KittiEvalOdom():
             for frame_idx in frame_idx_list:
                 # pose = np.linalg.inv(poses_dict[key][frame_idx_list[0]]) @ poses_dict[key][frame_idx]
                 pose = poses_dict[key][frame_idx]
-                pos_xz.append([pose[0, 3],  pose[1, 3]])
+                pos_xz.append([pose[0, 3],  pose[2, 3]])
             pos_xz = np.asarray(pos_xz)
             plt.plot(pos_xz[:, 0],  pos_xz[:, 1], label=key)
 
@@ -295,7 +295,7 @@ class KittiEvalOdom():
         plt.xticks(fontsize=fontsize_)
         plt.yticks(fontsize=fontsize_)
         plt.xlabel('x (m)', fontsize=fontsize_)
-        plt.ylabel('y (m)', fontsize=fontsize_)
+        plt.ylabel('z (m)', fontsize=fontsize_)
         fig.set_size_inches(10, 10)
         png_title = "sequence_{:02}".format(seq)
         fig_pdf = self.plot_path_dir + "/" + png_title + ".pdf"
@@ -515,15 +515,6 @@ class KittiEvalOdom():
         self.plot_error_dir = result_dir + "/plot_error"
         result_txt = os.path.join(result_dir, "result.txt")
         f = open(result_txt, 'w')
-        TIO = np.eye(4)
-        imu_velo_rot =[9.999976e-01 , 7.553071e-04 ,-2.035826e-03,-7.854027e-04, 9.998898e-01 ,-1.482298e-02, 2.024406e-03,1.482454e-02, 9.998881e-01]
-        velo_cam_rot =[7.027555e-03, -9.999753e-01 , 2.599616e-05 ,-2.254837e-03 ,-4.184312e-05, -9.999975e-01, 9.999728e-01, 7.027479e-03 ,-2.255075e-03]
-
-        Riv=np.array(imu_velo_rot).reshape(3,3)
-        Rvc=np.array(velo_cam_rot).reshape(3,3)
-        RIO=Rvc.T.dot(Riv.T)
-        TIO[0:3,0:3] = RIO
-        
 
         if not os.path.exists(error_dir):
             os.makedirs(error_dir)
@@ -553,10 +544,10 @@ class KittiEvalOdom():
             # Pose alignment to first frame
             idx_0 = sorted(list(poses_result.keys()))[0]
             pred_0 = poses_result[idx_0]
-            gt_0 = TIO.dot(poses_gt[idx_0])
+            gt_0 = poses_gt[idx_0]
             for cnt in poses_result:
                 poses_result[cnt] = np.linalg.inv(pred_0) @ poses_result[cnt]
-                poses_gt[cnt] = np.linalg.inv(gt_0) @ TIO.dot(poses_gt[cnt])
+                poses_gt[cnt] = np.linalg.inv(gt_0) @ poses_gt[cnt]
 
             if alignment == "scale":
                 poses_result = self.scale_optimization(poses_gt, poses_result)
