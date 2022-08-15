@@ -343,7 +343,7 @@ def main():
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
             # pose_mat = TCI.dot(pose_mat)
             # pose_mat = TCI @  np.linalg.inv(pose_mat)
-            pose_mat[0:3,0:3] = TCI[0:3,0:3].dot(pose_mat[0:3,0:3])
+            # pose_mat[0:3,0:3] = TCI[0:3,0:3].dot(pose_mat[0:3,0:3])
             pose_mat[0:3,3] = TCI[0:3,0:3].dot(pose_mat[0:3,3])
 
             print("pose_mat",pose_mat)
