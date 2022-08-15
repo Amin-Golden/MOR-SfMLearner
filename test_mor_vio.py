@@ -398,8 +398,8 @@ def main():
             a_est[k] = a_check
 
             # Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
-            global_pose[0:3,0:3] = C_ni
-            global_pose[0:3,3] = p_check.T
+            # global_pose[0:3,0:3] = C_ni
+            # global_pose[0:3,3] = p_check.T
             # pose_mat[0:3,0:3]=Rot
             global_pose = global_pose @  np.linalg.inv(pose_mat)
             print("global_pose",global_pose[0:3, :])
