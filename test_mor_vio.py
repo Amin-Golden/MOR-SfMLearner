@@ -143,6 +143,7 @@ def main():
     Rvc=np.array(velo_cam_rot).reshape(3,3)
     Ric = Riv.dot(Rvc)
     TCI[0:3,0:3] = Rvc.T.dot(Riv.T)
+    Tc0 = np.eye(4)
     current_pose = np.eye(4)
     trajectory = [0,0,0]
     # for k in range(1, imu_f[0,:].shape[0]): 
@@ -351,17 +352,18 @@ def main():
             r=R.from_euler('xyz',imu_f[7:10, k-1])
             r0=R.from_euler('xyz',imu_f[7:10, 0])
             Rc0 = r0.as_matrix()
+            Tc0[0:3,0:3] = Rc0
             C_ni  =  r.as_matrix()
             C_ni  = Ric.dot(C_ni)
             # current_pose [0:3,0:3] = C_ni
             # current_pose [0:3,3] = p_check.T
             # pose_mat[0:3,0:3] = trajectory.T
             # pose_mat[0:3,0:3] = C_ni
-            global_traj = global_pose @  np.linalg.inv(pose_mat)
+            global_traj = global_pose @  Tc0.dot(np.linalg.inv(pose_mat))
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
             
-            trajectory = Rc0.dot(global_traj[0:3,3]).T
+            trajectory = global_traj[0:3,3].T
             # trajectory[0] = global_traj[0,3]
             # trajectory[1] = global_traj[1,3] 
             # trajectory[2] = global_traj[2,3] 
