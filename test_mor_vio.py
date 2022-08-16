@@ -423,7 +423,9 @@ def main():
         LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
     
     # 
+    print("poses befor",poses)
     poses = np.concatenate(poses, axis=0)
+    print("poses after",poses)
     filename = Path(args.output_dir + args.sequence + ".txt")
     np.savetxt(filename, poses, delimiter=' ', fmt='%1.8e')
         # Print results
