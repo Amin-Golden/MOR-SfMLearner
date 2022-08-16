@@ -354,19 +354,19 @@ def main():
             Rc0 = r0.as_matrix()
             Tc0[0:3,0:3] = Rc0
             C_ni  =  r.as_matrix()
-            C_ni  = Ric.dot(C_ni)
+            C_ni  = Rc0.dot(Ric.dot(C_ni))
             # print("C_ni",C_ni)
             # current_pose [0:3,0:3] = C_ni
             # current_pose [0:3,3] = p_check.T
             # pose_mat[0:3,0:3] = trajectory.T
             # pose_mat[0:3,0:3] = C_ni
             # global_traj[0:3,3] = p_check.T
-            global_traj = global_traj @   np.linalg.inv(Tc0.dot(pose_mat))
+            global_traj = global_traj @   np.linalg.inv(pose_mat)
 
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
             # tarj = np.linalg.inv(pose_mat)
-            trajectory = ((global_traj[0:3,3])).T #Rc0.dot
+            trajectory = (Rc0.dot(global_traj[0:3,3])).T #
            
             delta_t = 0.1 # time_s[k - 1]-time_s[k]
             
