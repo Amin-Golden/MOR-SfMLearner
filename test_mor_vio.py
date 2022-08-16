@@ -146,15 +146,15 @@ def main():
     Tc0 = np.eye(4)
     current_pose = np.eye(4)
     trajectory = [0,0,0]
-    for k in range(1, imu_f[0,:].shape[0]): 
+    # for k in range(1, imu_f[0,:].shape[0]): 
 
-        yaw = imu_f[9, k - 1] - imu_f[9, 0]
-        if yaw > np.pi:
-            yaw = yaw - 2*np.pi
+    #     yaw = imu_f[9, k - 1] - imu_f[9, 0]
+    #     if yaw > np.pi:
+    #         yaw = yaw - 2*np.pi
 
-        if yaw < -np.pi:
-            yaw = yaw + 2*np.pi
-        imu_f[9, k - 1]= yaw
+    #     if yaw < -np.pi:
+    #         yaw = yaw + 2*np.pi
+    #     imu_f[9, k - 1]= yaw
     
     
 
