@@ -348,13 +348,14 @@ def main():
             # pose_mat[0:3,0:3] = TCI[0:3,0:3].dot(pose_mat[0:3,0:3])
             # pose_mat[0:3,3] = TCI[0:3,0:3].dot(pose_mat[0:3,3])
 
-            print("pose_mat",pose_mat)
+            # print("pose_mat",pose_mat)
             r=R.from_euler('xyz',imu_f[7:10, k-1])
             r0=R.from_euler('xyz',imu_f[7:10, 0])
             Rc0 = r0.as_matrix()
             Tc0[0:3,0:3] = Rc0
             C_ni  =  r.as_matrix()
             C_ni  = Ric.dot(C_ni)
+            print("C_ni",C_ni)
             # current_pose [0:3,0:3] = C_ni
             # current_pose [0:3,3] = p_check.T
             # pose_mat[0:3,0:3] = trajectory.T
