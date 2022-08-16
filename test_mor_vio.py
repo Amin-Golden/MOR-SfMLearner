@@ -405,9 +405,9 @@ def main():
             p_cov[k] = p_cov_check
             a_est[k] = a_check
 
-            # global_pose[0:3,0:3] = C_ni
-            # global_pose[0:3,3] = p_check.T
-            global_pose = global_pose @  np.linalg.inv(pose_mat)
+            global_pose[0:3,0:3] = C_ni
+            global_pose[0:3,3] = p_check.T
+            global_pose = global_pose @ np.eye(4) #np.linalg.inv(pose_mat)
             print("global_pose",global_pose[0:3, :])
             poses.append(global_pose[0:3, :].reshape(1, 12)) 
 
