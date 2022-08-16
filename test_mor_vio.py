@@ -362,8 +362,8 @@ def main():
             # global_traj = global_pose @  (Tc0 @ np.linalg.inv(pose_mat))
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
-            
-            trajectory = C_ni.dot(np.linalg.inv(pose_mat)).T + p_check
+            tarj = np.linalg.inv(pose_mat)
+            trajectory = C_ni.dot(tarj[0:3,3]).T + p_check
             # trajectory[0] = global_traj[0,3]
             # trajectory[1] = global_traj[1,3] 
             # trajectory[2] = global_traj[2,3] 
