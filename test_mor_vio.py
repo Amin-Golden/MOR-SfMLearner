@@ -359,6 +359,7 @@ def main():
             # current_pose [0:3,3] = p_check.T
             # pose_mat[0:3,0:3] = trajectory.T
             # pose_mat[0:3,0:3] = C_ni
+            global_traj[0:3,3] = p_check.T
             global_traj = global_traj @   np.linalg.inv(pose_mat)
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
@@ -410,7 +411,7 @@ def main():
             global_pose[0:3,0:3] = C_ni
             global_pose[0:3,3] = p_check.T
             global_pose = global_pose @ np.eye(4) #np.linalg.inv(pose_mat)
-            global_pose = global_pose.dot(pose_mat)
+            # global_pose = global_pose.dot(pose_mat)
             print("global_pose",global_pose[0:3, :])
             poses.append(global_pose[0:3, :].reshape(1, 12)) 
 
