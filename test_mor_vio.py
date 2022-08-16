@@ -366,7 +366,7 @@ def main():
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
             # tarj = np.linalg.inv(pose_mat)
-            trajectory = p_check + (Rc0.dot(pose_mat[0:3,3])).T 
+            trajectory = p_check + ((pose_mat[0:3,3])).T 
            
             delta_t = 0.1 # time_s[k - 1]-time_s[k]
             
