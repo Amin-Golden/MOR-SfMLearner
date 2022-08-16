@@ -354,7 +354,7 @@ def main():
             Rc0 = r0.as_matrix()
             Tc0[0:3,0:3] = Rc0
             C_ni  =  r.as_matrix()
-            C_ni  = Rc0.dot(Ric.dot(C_ni))
+            C_ni  = (Ric.dot(C_ni)) #Rc0.dot
             # print("C_ni",C_ni)
             # current_pose [0:3,0:3] = C_ni
             # current_pose [0:3,3] = p_check.T
