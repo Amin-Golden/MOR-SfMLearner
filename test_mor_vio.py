@@ -363,7 +363,7 @@ def main():
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
             
-            trajectory = Rc0.dot(pose_mat[0:3,3]).T + p_check
+            trajectory = C_ni.dot(pose_mat[0:3,3]).T + p_check
             # trajectory[0] = global_traj[0,3]
             # trajectory[1] = global_traj[1,3] 
             # trajectory[2] = global_traj[2,3] 
