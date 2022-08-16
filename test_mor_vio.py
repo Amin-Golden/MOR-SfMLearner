@@ -144,16 +144,16 @@ def main():
     Ric = Riv.dot(Rvc)
     TCI[0:3,0:3] = Rvc.T.dot(Riv.T)
     current_pose = np.eye(4)
+    trajectory = [0,0,0]
+    # for k in range(1, imu_f[0,:].shape[0]): 
 
-    for k in range(1, imu_f[0,:].shape[0]): 
+    #     yaw = imu_f[9, k - 1] - imu_f[9, 0]
+    #     if yaw > np.pi:
+    #         yaw = yaw - 2*np.pi
 
-        yaw = imu_f[9, k - 1] - imu_f[9, 0]
-        if yaw > np.pi:
-            yaw = yaw - 2*np.pi
-
-        if yaw < -np.pi:
-            yaw = yaw + 2*np.pi
-        imu_f[9, k - 1]= yaw
+    #     if yaw < -np.pi:
+    #         yaw = yaw + 2*np.pi
+    #     imu_f[9, k - 1]= yaw
     
     
 
@@ -349,6 +349,8 @@ def main():
 
             print("pose_mat",pose_mat)
             r=R.from_euler('xyz',imu_f[7:10, k-1])
+            r0=R.from_euler('xyz',imu_f[7:10, 0])
+            Rc0 = r0.as_matrix()
             C_ni  =  r.as_matrix()
             C_ni  = Ric.dot(C_ni)
             # current_pose [0:3,0:3] = C_ni
@@ -358,8 +360,8 @@ def main():
             global_traj = global_traj @  np.linalg.inv(pose_mat)
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
-            trajectory = [0,0,0]
-            trajectory = global_traj[0:3,3].T
+            
+            trajectory = Rc0.dot(global_traj[0:3,3]).T
             # trajectory[0] = global_traj[0,3]
             # trajectory[1] = global_traj[1,3] 
             # trajectory[2] = global_traj[2,3] 
@@ -405,7 +407,7 @@ def main():
 
             # Rot = Quaternion(*q_check).to_mat() #Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
             global_pose[0:3,0:3] = C_ni
-            global_traj[0:3,3] = p_check.T
+            # global_traj[0:3,3] = p_check.T
             global_pose[0:3,3] = p_check.T
             # pose_mat[0:3,0:3]=Rot
             # global_pose = global_pose @  np.linalg.inv(pose_mat)
