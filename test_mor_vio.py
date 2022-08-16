@@ -366,7 +366,7 @@ def main():
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
             # tarj = np.linalg.inv(pose_mat)
-            trajectory = (Rc0.dot(global_traj[0:3,3])).T 
+            trajectory = ((global_traj[0:3,3])).T #Rc0.dot
            
             delta_t = 0.1 # time_s[k - 1]-time_s[k]
             
@@ -419,9 +419,7 @@ def main():
         LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
     
     # 
-    print("poses befor",poses)
     poses = np.concatenate(poses, axis=0)
-    print("poses after",poses)
     filename = Path(args.output_dir + args.sequence + ".txt")
     np.savetxt(filename, poses, delimiter=' ', fmt='%1.8e')
         # Print results
