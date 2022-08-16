@@ -359,29 +359,23 @@ def main():
             # current_pose [0:3,3] = p_check.T
             # pose_mat[0:3,0:3] = trajectory.T
             # pose_mat[0:3,0:3] = C_ni
-            global_traj[0:3,3] = p_check.T
-            global_traj = global_traj @   np.linalg.inv(pose_mat)
+            # global_traj[0:3,3] = p_check.T
+            global_traj = global_pose.dot(pose_mat) #_traj @   np.linalg.inv(pose_mat)
+
             # global_traj = current_pose.dot(pose_mat)      
             # print("pose_mat",pose_mat)
-            tarj = np.linalg.inv(pose_mat)
+            # tarj = np.linalg.inv(pose_mat)
             trajectory =  (Rc0.dot(global_traj[0:3,3])).T 
-            # trajectory[0] = global_traj[0,3]
-            # trajectory[1] = global_traj[1,3] 
-            # trajectory[2] = global_traj[2,3] 
+           
             delta_t = 0.1 # time_s[k - 1]-time_s[k]
             
             # Update state with IMU inputs
-            # fuse.update_nomag(tuple(imu_f[1:4, k ]), tuple(imu_f[4:7, k ]),ts=0.1)
-
-            # print("C_ni",C_ni)
-            # C_ni =Quaternion(*q_check).to_mat() # pose_mat[0:3,0:3]# Rotation matrix associated with the current vehicle pose (Computed from the quaternion)
+          
             p_check = p_check + (delta_t * v_check) + (((delta_t**2) / 2) * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) # Position calculation
             v_check = v_check + (delta_t * (C_ni.dot(imu_f[1:4, k - 1 ]) + g)) #velocity calculation
-            #q_check = Quaternion(axis_angle = imu_f[4:7, k ] * delta_t).quat_mult(q_check) #Quaternion calculation (Current orientation)
             a_check = C_ni.dot(imu_f[1:4, k - 1]) + g
 
-            # q=rot2Quat(pose_mat[0:3,0:3])
-            # q_check    = Quaternion(np.array(q)).quat_mult(q_check)
+
             # Linearize Motion Model
             F = f_jac # F matrix value assignation
             F[0:3,3:6] = np.eye(3) * delta_t 
