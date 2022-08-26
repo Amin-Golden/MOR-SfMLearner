@@ -581,6 +581,7 @@ class KittiEvalOdom():
 
             # compute overall error
             ave_t_err, ave_r_err = self.compute_overall_err(seq_err)
+            print("scale: ",scale)
             print("Sequence: " + str(i))
             print("Translational error (%): ", ave_t_err*100)
             print("Rotational error (deg/100m): ", ave_r_err/np.pi*180*100)
