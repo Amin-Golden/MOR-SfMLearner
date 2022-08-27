@@ -96,7 +96,8 @@ def main():
 
 
 
-    image_dir = Path(args.dataset_dir + args.sequence + "/image_2/")
+    # image_dir = Path(args.dataset_dir + args.sequence + "/image_2/")
+    image_dir = Path(args.dataset_dir )
     output_dir = Path(args.output_dir)
     output_dir.makedirs_p()
 
@@ -138,12 +139,11 @@ def main():
 
         # Inference
         pred = model_obj(im, augment=False, visualize=False)
-        t3 = time_sync()
-        dt[1] += t3 - t2
+        
 
         # NMS
         pred = non_max_suppression(pred, args.conf_thres, args.iou_thres, args.classes, args.agnostic_nms, max_det=args.max_det)
-        dt[2] += time_sync() - t3
+        
 
         # Second-stage classifier (optional)
         # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
@@ -196,7 +196,8 @@ def main():
             tensor_img2,img = load_tensor_image(im0, args)
             
             pose = pose_net(tensor_img1, tensor_img2)
-
+            t3 = time_sync()
+            dt[1] += t3 - t2
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
             global_pose = global_pose @  np.linalg.inv(pose_mat)
@@ -207,6 +208,7 @@ def main():
             tensor_img1 = tensor_img2
             print("image k:", k)
             k=k+1
+            dt[2] += time_sync() - t3
                 
         # Print time (inference-only)
         LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
