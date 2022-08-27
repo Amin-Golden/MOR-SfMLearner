@@ -196,8 +196,7 @@ def main():
             tensor_img2,img = load_tensor_image(im0, args)
             
             pose = pose_net(tensor_img1, tensor_img2)
-            t3 = time_sync()
-            dt[1] += t3 - t2
+            
             pose_mat = pose_vec2mat(pose).squeeze(0).cpu().numpy()
             pose_mat = np.vstack([pose_mat, np.array([0, 0, 0, 1])])
             global_pose = global_pose @  np.linalg.inv(pose_mat)
@@ -208,7 +207,9 @@ def main():
             tensor_img1 = tensor_img2
             print("image k:", k)
             k=k+1
-            dt[2] += time_sync() - t3
+        t3 = time_sync()
+        dt[1] += t3 - t2
+        dt[2] += time_sync() - t3
                 
         # Print time (inference-only)
         LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
